@@ -62,24 +62,45 @@ def select_data_all():
         return caseManagement_list
 
 
-# 通过id查询
-def select_data_by_id(id):
+# 通过name查询
+# def select_data_by_name(name):
+#     with app.app_context():
+#         caseManagement = CaseManagements.query.filter_by(name=name).first()
+#         if caseManagement:
+#             return {
+#                 'id': caseManagement.id,
+#                 'name': caseManagement.name,
+#                 'gender': caseManagement.gender,
+#                 'time': caseManagement.time,
+#                 'region': caseManagement.region,
+#                 'telephone': caseManagement.telephone,
+#                 'sensitives': caseManagement.sensitives,
+#                 'delivery': caseManagement.delivery,
+#                 'diagnose': caseManagement.diagnose,
+#                 'desc': caseManagement.desc
+#             }
+#         return None
+def select_data_by_name(name):
     with app.app_context():
-        caseManagement = CaseManagements.query.get(id)
-        if caseManagement:
-            return {
-                'id': caseManagement.id,
-                'name': caseManagement.name,
-                'gender': caseManagement.gender,
-                'time': caseManagement.time,
-                'region': caseManagement.region,
-                'telephone': caseManagement.telephone,
-                'sensitives': caseManagement.sensitives,
-                'delivery': caseManagement.delivery,
-                'diagnose': caseManagement.diagnose,
-                'desc': caseManagement.desc
-            }
+        caseManagements = CaseManagements.query.filter(CaseManagements.name == name).all()
+        if caseManagements:
+            results = []
+            for caseManagement in caseManagements:
+                results.append({
+                    'id': caseManagement.id,
+                    'name': caseManagement.name,
+                    'gender': caseManagement.gender,
+                    'time': caseManagement.time,
+                    'region': caseManagement.region,
+                    'telephone': caseManagement.telephone,
+                    'sensitives': caseManagement.sensitives,
+                    'delivery': caseManagement.delivery,
+                    'diagnose': caseManagement.diagnose,
+                    'desc': caseManagement.desc
+                })
+            return results
         return None
+
 
 
 # 通过id删除数据
@@ -94,16 +115,28 @@ def delete_data(id):
 
 
 # 修改数据
-def update_data(id, title=None, author=None, read_status=None):
+def update_data(id, name=None, gender=None, time=None, region=None, telephone=None, sensitives=None, delivery=None, diagnose=None, desc=None):
     with app.app_context():
         caseManagement = CaseManagements.query.get(id)
         if caseManagement:
-            if title:
-                caseManagement.title = title
-            if author:
-                caseManagement.author = author
-            if read_status is not None:
-                caseManagement.read_status = read_status
+            if name:
+                caseManagement.name = name
+            if gender:
+                caseManagement.gender = gender
+            if time:
+                caseManagement.time = time
+            if region:
+                caseManagement.region = region
+            if telephone:
+                caseManagement.telephone = telephone
+            if sensitives:
+                caseManagement.sensitives = sensitives
+            if delivery:
+                caseManagement.delivery = delivery
+            if diagnose:
+                caseManagement.diagnose = diagnose
+            if desc:
+                caseManagement.desc = desc
             db.session.commit()
             return True
         return False
@@ -139,7 +172,7 @@ def add():
 
 
     insert_data(name, gender, time, region,telephone, sensitives, delivery, diagnose, desc)
-    response_object['message'] = '图书添加成功!'
+    response_object['message'] = '病历添加成功!'
     return jsonify(response_object)
 
 
@@ -154,9 +187,9 @@ def delete():
         return jsonify(response_object)
 
     if delete_data(post_data.get('id')):
-        response_object['message'] = '图书被删除!'
+        response_object['message'] = '病历已删除!'
     else:
-        response_object['message'] = '需要删除的图书不存在!'
+        response_object['message'] = '需要删除的病历不存在!'
         response_object["status"] = 'fail'
     return jsonify(response_object)
 
@@ -166,30 +199,11 @@ def update():
     response_object = {'status': 'success'}
     post_data = request.get_json()
 
-    if not post_data.get('id'):
-        response_object['message'] = 'id是必传参数!'
-        response_object["status"] = 'fail'
-        return jsonify(response_object)
-
-    if not post_data.get('title'):
-        response_object['message'] = 'title是必传参数!'
-        response_object["status"] = 'fail'
-        return jsonify(response_object)
-
-    if not post_data.get('author'):
-        response_object['message'] = 'author是必传参数!'
-        response_object["status"] = 'fail'
-        return jsonify(response_object)
-
-    if post_data.get('read_status') not in [0, 1]:
-        response_object['message'] = '阅读状态只能为0和1!'
-        response_object["status"] = 'fail'
-        return jsonify(response_object)
-
-    if update_data(post_data.get('id'), post_data.get('title'), post_data.get('author'), post_data.get('read_status')):
-        response_object['message'] = '图书已更新!'
+    if update_data(post_data.get('id'), post_data.get('name'), post_data.get('gender'), post_data.get('time'), post_data.get('region'),
+                   post_data.get('telephone'), post_data.get('sensitives'), post_data.get('delivery'), post_data.get('diagnose'), post_data.get('desc')):
+        response_object['message'] = '病历已更新!'
     else:
-        response_object['message'] = '需要修改的书籍id不存在!'
+        response_object['message'] = '需要修改的病历不存在!'
         response_object["status"] = 'fail'
     return jsonify(response_object)
 
@@ -199,19 +213,20 @@ def query():
     response_object = {'status': 'success'}
     post_data = request.get_json()
 
-    if not post_data.get('id'):
+    if not post_data.get('name'):
         caseManagements = select_data_all()
-        response_object['message'] = '查询所有书籍成功!'
+        response_object['message'] = '查询所有病历成功!'
         response_object['caseManagements'] = caseManagements
     else:
-        caseManagement = select_data_by_id(post_data.get('id'))
+        caseManagement = select_data_by_name(post_data.get('name'))
         if caseManagement:
-            response_object['message'] = '查询书籍成功!'
+            response_object['message'] = '查询病历成功!'
             response_object['caseManagements'] = caseManagement
         else:
-            response_object['message'] = '需要查询的图书不存在!'
+            response_object['message'] = '需要查询的病历不存在!'
             response_object["status"] = 'fail'
     return jsonify(response_object)
+
 
 
 if __name__ == '__main__':

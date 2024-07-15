@@ -8,7 +8,7 @@ pymysql.install_as_MySQLdb()
 import sqlalchemy as sa
 
 # 读取 CSV 文件
-df = pd.read_csv('./cities.csv')
+df = pd.read_csv('./regions.csv')
 
 # 创建数据库连接（使用 SQLAlchemy）
 engine = sa.create_engine('mysql://sym:100200@117.50.199.3:3306/case_management_system')

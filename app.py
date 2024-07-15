@@ -61,25 +61,6 @@ def select_data_all():
             })
         return caseManagement_list
 
-
-# 通过name查询
-# def select_data_by_name(name):
-#     with app.app_context():
-#         caseManagement = CaseManagements.query.filter_by(name=name).first()
-#         if caseManagement:
-#             return {
-#                 'id': caseManagement.id,
-#                 'name': caseManagement.name,
-#                 'gender': caseManagement.gender,
-#                 'time': caseManagement.time,
-#                 'region': caseManagement.region,
-#                 'telephone': caseManagement.telephone,
-#                 'sensitives': caseManagement.sensitives,
-#                 'delivery': caseManagement.delivery,
-#                 'diagnose': caseManagement.diagnose,
-#                 'desc': caseManagement.desc
-#             }
-#         return None
 def select_data_by_name(name):
     with app.app_context():
         caseManagements = CaseManagements.query.filter(CaseManagements.name == name).all()
@@ -100,8 +81,6 @@ def select_data_by_name(name):
                 })
             return results
         return None
-
-
 
 # 通过id删除数据
 def delete_data(id):
@@ -227,8 +206,19 @@ def query():
             response_object["status"] = 'fail'
     return jsonify(response_object)
 
-
+# # 获取所有省份
+# @app.route('/api/provinces', methods=['GET'])
+# def get_provinces():
+#     connection = mysql.connector.connect(**db_config)
+#     cursor = connection.cursor(dictionary=True)
+#     cursor.execute("SELECT * FROM Province")
+#     provinces = cursor.fetchall()
+#     cursor.close()
+#     connection.close()
+#     return jsonify(provinces)
 
 if __name__ == '__main__':
- # 创建表（表创建好后可注释掉）
+    # 创建表（表创建好后可注释掉）
+    with app.app_context():
+        db.create_all()  # 创建表（表创建好后可注释掉）
     app.run(debug=True, port=8000)
